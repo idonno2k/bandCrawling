@@ -97,6 +97,13 @@ def main():
     TotalNum = driver.find_element_by_xpath('//*[@id="wrap"]/div[2]/div/div/section/div/div[2]/div[1]/div/span')
     print(TotalNum.text)
 
+    for file in os.scandir(downloadfolder):
+        if file.name.endswith('.mp4'):
+            os.remove(file.path)
+            print ("removed " + file.name)
+
+
+
     num = int(TotalNum.text)
     for x in range(1,(num+1)):
         print("--{0}/{1}-- ".format(x,num), end='')
@@ -114,7 +121,7 @@ def main():
         photoContent = photoViewer.find_element_by_class_name("photoContent")
 
         optionBox = photoViewer.find_element_by_xpath('//*[@class="optionBox"]/a')
-        optionBox.click()
+        #optionBox.click()
 
         try:
             img = photoContent.find_element_by_xpath('//*[@class="mediaWrap _mediaWrap"]/img')
@@ -123,6 +130,9 @@ def main():
             #print(href)
 			
             fname = get_filename_from_url(href)
+
+            if os.path.exists(downloadfolder + fname) == False:
+                optionBox.click()
 
             wait4download(downloadfolder + fname, 60)
 
@@ -138,6 +148,9 @@ def main():
             #print(vedio_url)
 
             fname = get_filename_from_url(vedio_url)
+
+            if os.path.exists(downloadfolder + fname[0:63] + '.mp4') == False:
+                optionBox.click()
 
             wait4download(downloadfolder + mp4filename, 60)
 
