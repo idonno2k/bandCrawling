@@ -97,10 +97,10 @@ def main():
     TotalNum = driver.find_element_by_xpath('//*[@id="wrap"]/div[2]/div/div/section/div/div[2]/div[1]/div/span')
     print(TotalNum.text)
 
-    for file in os.scandir(downloadfolder):
-        if file.name.endswith('.mp4'):
-            os.remove(file.path)
-            print ("removed " + file.name)
+   # for file in os.scandir(downloadfolder):
+  #      if file.name.endswith('.mp4'):
+  #          os.remove(file.path)
+  #          print ("removed " + file.name)
 
 
 
@@ -134,29 +134,33 @@ def main():
             if os.path.exists(downloadfolder + fname) == False:
                 optionBox.click()
 
-            wait4download(downloadfolder + fname, 60)
+                wait4download(downloadfolder + fname, 60)
 
-            change_attribute(downloadfolder + fname , ttstamp)
+                change_attribute(downloadfolder + fname , ttstamp)
             print(fname,end='')
 
         except NoSuchElementException:
             element = WebDriverWait(photoContent, 10).until(
             EC.presence_of_element_located((By.TAG_NAME, "video"))        )
 			
-            video = photoContent.find_element_by_tag_name('video')
+            #video = photoContent.find_element_by_tag_name('video')
+            video = photoContent.find_element_by_xpath('//*[@class="mejs-poster mejs-layer"]/img')
             vedio_url = video.get_attribute('src')
             #print(vedio_url)
 
             fname = get_filename_from_url(vedio_url)
+            fn_ext = os.path.splitext(fname)
+            fname = fn_ext[0]
 
-            if os.path.exists(downloadfolder + fname[0:63] + '.mp4') == False:
+            if os.path.exists(downloadfolder + fname + '.mp4') == False:
                 optionBox.click()
 
-            wait4download(downloadfolder + mp4filename, 60)
+                wait4download(downloadfolder + mp4filename, 60)
 
-            change_attribute(downloadfolder + mp4filename , ttstamp)
-            rename(downloadfolder + mp4filename,downloadfolder + fname[0:63] + '.mp4')
-            print(fname[0:63] + '.mp4',end='')
+                change_attribute(downloadfolder + mp4filename , ttstamp)
+                rename(downloadfolder + mp4filename,downloadfolder + fname + '.mp4')
+                
+            print(fname + '.mp4',end='')
 
         print("\t\t%.6f sec" %(time.time() - start))
         if x < num:
