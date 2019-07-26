@@ -13,6 +13,8 @@ from selenium.common.exceptions import NoSuchElementException
 import os, subprocess, threading, sys
 from os import rename, listdir
 
+import shutil
+
 from win32_setctime import setctime
 from datetime import datetime 
 import time
@@ -20,14 +22,15 @@ import time
 from PIL import Image
 from PIL.ExifTags import TAGS
 
-band_url = "https://band.us/band/9807709"  #영아부
-#band_url = "https://band.us/band/73840350"  #유치부
-#band_url = "https://band.us/band/69055731" #초등부
-#band_url = "https://band.us/band/73840350" #유년부
-#band_url = "https://band.us/band/70171406" #고등부
+band_home = "https://band.us/band/"
+#band_id = "9807709"  #영아부
+#band_id = "73840350"  #유치부
+#band_id = "69055731" #초등부
+#band_id = "73840350" #유년부
+band_id = "70171406" #고등부
 
-downloadfolder = 'D:\\band\\'
-mp4filename = 'BandVideo.mp4'
+dn_root = 'D:/band/'
+bandvideo = 'BandVideo.mp4'
 
 
 def download(url, file_name = None):
@@ -51,7 +54,7 @@ def frename(path,filetype):
         filename = "_".join([basename, suffix]) +'.'+filetype
         print(filename)
 
-        rename(path,downloadfolder +filename)
+        rename(path,dn_root +filename)
 		
 def find(name, path):
     for root, dirs, files in os.walk(path):
@@ -84,8 +87,8 @@ def main():
     driver = webdriver.Chrome(chrome_driver, options = chrome_options)
     driver.implicitly_wait(3)
 
-    driver.get(band_url)
-    
+    global band_id
+    driver.get(band_home + band_id)
     time.sleep(5)
 
     driver.find_element_by_xpath('//*[@id="lnb"]/ul/li[2]/a/span').click()#사진첩
@@ -101,7 +104,9 @@ def main():
   #      if file.name.endswith('.mp4'):
   #          os.remove(file.path)
   #          print ("removed " + file.name)
-
+    if not os.path.isdir(dn_root + band_id):
+        os.mkdir(dn_root + band_id)
+    band_id = band_id + '/'
 
 
     num = int(TotalNum.text)
@@ -109,7 +114,7 @@ def main():
         print("--{0}/{1}-- ".format(x,num), end='')
         start = time.time()
 
-        element = WebDriverWait(driver, 10).until(
+        element = WebDriverWait(driver, 180).until(
         EC.presence_of_element_located((By.CLASS_NAME, "optionBox"))        )
 
         timetag = driver.find_element_by_class_name("time")
@@ -131,16 +136,19 @@ def main():
 			
             fname = get_filename_from_url(href)
 
-            if os.path.exists(downloadfolder + fname) == False:
+            if os.path.exists(dn_root + band_id + fname) == False:
                 optionBox.click()
 
-                wait4download(downloadfolder + fname, 60)
+                wait4download(dn_root + fname, 60)
 
-                change_attribute(downloadfolder + fname , ttstamp)
+                change_attribute(dn_root + fname , ttstamp)
+                
+            #if os.path.exists(dn_root +fname):   
+                shutil.move(dn_root + fname, dn_root + band_id + fname)    
             print(fname,end='')
 
         except NoSuchElementException:
-            element = WebDriverWait(photoContent, 10).until(
+            element = WebDriverWait(photoContent, 180).until(
             EC.presence_of_element_located((By.TAG_NAME, "video"))        )
 			
             #video = photoContent.find_element_by_tag_name('video')
@@ -150,17 +158,20 @@ def main():
 
             fname = get_filename_from_url(vedio_url)
             fn_ext = os.path.splitext(fname)
-            fname = fn_ext[0]
+            fname = fn_ext[0] + '.mp4'
 
-            if os.path.exists(downloadfolder + fname + '.mp4') == False:
+            if os.path.exists(dn_root + band_id + fname) == False:
                 optionBox.click()
 
-                wait4download(downloadfolder + mp4filename, 60)
+                wait4download(dn_root+ bandvideo, 60)
 
-                change_attribute(downloadfolder + mp4filename , ttstamp)
-                rename(downloadfolder + mp4filename,downloadfolder + fname + '.mp4')
+                change_attribute(dn_root + bandvideo , ttstamp)
+                #rename(dn_root + bandvideo, dn_root + fname + '.mp4')
+
+            #if os.path.exists(dn_root+bandvideo):
+                shutil.move(dn_root + bandvideo, dn_root + band_id + fname)
                 
-            print(fname + '.mp4',end='')
+            print(fname,end='')
 
         print("\t\t%.6f sec" %(time.time() - start))
         if x < num:
