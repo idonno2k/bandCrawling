@@ -24,10 +24,10 @@ from PIL.ExifTags import TAGS
 
 band_home = "https://band.us/band/"
 #band_id = "9807709"  #영아부
-#band_id = "73840350"  #유치부
+band_id = "9166938"  #유치부
 #band_id = "69055731" #초등부
 #band_id = "73840350" #유년부
-band_id = "70171406" #고등부
+#band_id = "70171406" #고등부
 
 dn_root = 'D:/band/'
 bandvideo = 'BandVideo.mp4'
